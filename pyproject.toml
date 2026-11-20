@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=65", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "homewind-tokenextractor"
+version = "0.1.0"
+description = "Read the tokens of Homewind-compatible Xiaomi fans from Xiaomi Home."
+requires-python = ">=3.10"
+authors = [{ name = "Martin Lihs" }]
+license = { text = "MIT" }
+dependencies = ["requests", "pycryptodome", "PySide6", "zeroconf"]
+
+[project.optional-dependencies]
+dev = ["pytest", "pyinstaller"]
+
+[project.scripts]
+homewind-tokenextractor = "homewind_tokenextractor.app:run"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+homewind_tokenextractor = ["assets/*.ico", "assets/fans/*", "assets/fonts/*"]
