@@ -1,7 +1,30 @@
+# Python
 __pycache__/
+*.py[cod]
 *.egg-info/
+.eggs/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+
+# Tests and type checkers
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# PyInstaller
 build/
 dist/
-.venv/
-.pytest_cache/
+*.manifest
+
+# Secrets and local config
+.env
+.env.*
+
+# macOS and editors
 .DS_Store
+.idea/
