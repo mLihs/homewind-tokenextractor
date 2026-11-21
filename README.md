@@ -7,7 +7,7 @@ This app is a helper app for [Homewind](https://homewind.io). It adds Xiaomi fan
 1. Open the app and sign in to Xiaomi Home with your email and password, or with a QR code from the Xiaomi Home app on your phone. The password is not saved.
 2. You see your fans. Only fans that Homewind can control are listed.
 3. Click **Add to Homewind** on a fan. The app looks for your Homewind and sends the token. The next time, it tries that same Homewind first.
-4. **Reload fans** loads the list again without asking for the password again.
+4. **Reload fans**, the circular arrows at the top right, loads the list again without asking for the password again.
 
 The first time you open the app on a Mac, a normal double-click may be blocked. Right-click the app, choose **Open**, then choose **Open** again. The first time you add a fan, macOS or Windows may ask if the app may look for devices on your local network. Allow that.
 

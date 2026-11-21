@@ -23,6 +23,13 @@ _TOKEN_RE = re.compile(r"^[0-9a-fA-F]{32}$")
 # Europe first: most Homewind users have their Mi Home account there.
 SERVER_ORDER = ["de", "i2", "us", "sg", "ru", "in", "tw", "cn"]
 
+NO_CONNECTION = "No connection to Xiaomi. Check your internet connection."
+SESSION_ENDED = "Xiaomi ended the sign-in. Sign in again."
+
+
+class _Refused(Exception):
+    """A region answered, but not with HTTP 200 (for example an expired sign-in)."""
+
 
 @dataclass(frozen=True)
 class CatalogEntry:
@@ -111,7 +118,9 @@ def filter_fans(devices: Iterable[dict], server: str, catalog: Catalog) -> List[
 def _fans_on_server(connector: XiaomiCloudConnector, server: str, catalog: Catalog) -> List[Fan]:
     homes: List[dict] = []
     resp = connector.get_homes(server)
-    if resp and resp.get("result"):
+    if resp is None:
+        raise _Refused(server)
+    if resp.get("result"):
         for home in resp["result"].get("homelist") or []:
             homes.append({"home_id": home["id"], "home_owner": connector.userId})
     cnt = connector.get_dev_cnt(server)
@@ -165,13 +174,16 @@ def collect_fans(
     for thread in threads:
         thread.join()
 
-    failures = 0
+    errors: List[BaseException] = []
     for _server, fans, error in outcomes:
         if error is not None:
-            failures += 1
+            errors.append(error)
             continue
         for fan in fans:
             found.setdefault(fan.did or fan.token, fan)
-    if chosen and failures == total:
-        raise ConnectionError("No connection to Xiaomi. Check your internet connection.")
+    if chosen and len(errors) == total:
+        # Every region answered and refused: the sign-in is no longer valid. An empty list would hide that.
+        if all(isinstance(error, _Refused) for error in errors):
+            raise PermissionError(SESSION_ENDED)
+        raise ConnectionError(NO_CONNECTION)
     return sorted(found.values(), key=lambda f: f.name.lower())

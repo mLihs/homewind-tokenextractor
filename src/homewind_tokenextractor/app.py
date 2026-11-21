@@ -37,12 +37,20 @@ from PySide6.QtWidgets import (
 
 try:
     from . import __version__
-    from .fans import ASSETS_DIR, PLACEHOLDER_IMAGE, Fan, collect_fans, load_catalog
+    from .fans import ASSETS_DIR, NO_CONNECTION, PLACEHOLDER_IMAGE, SESSION_ENDED, Fan, collect_fans, load_catalog
     from .homewind_client import ADDED, UNREACHABLE, HomewindDevice, add, discover, probe
     from .xiaomi_cloud import InteractionCallbacks, PasswordXiaomiCloudConnector, QrCodeXiaomiCloudConnector
 except ImportError:  # PyInstaller runs this file as a script
     from homewind_tokenextractor import __version__
-    from homewind_tokenextractor.fans import ASSETS_DIR, PLACEHOLDER_IMAGE, Fan, collect_fans, load_catalog
+    from homewind_tokenextractor.fans import (
+        ASSETS_DIR,
+        NO_CONNECTION,
+        PLACEHOLDER_IMAGE,
+        SESSION_ENDED,
+        Fan,
+        collect_fans,
+        load_catalog,
+    )
     from homewind_tokenextractor.homewind_client import ADDED, UNREACHABLE, HomewindDevice, add, discover, probe
     from homewind_tokenextractor.xiaomi_cloud import (
         InteractionCallbacks,
@@ -207,7 +215,7 @@ class Worker(QObject):
                 self.failed.emit(str(exc))
         except ConnectionError:
             if not self.cancelled:
-                self.failed.emit("No connection to Xiaomi. Check your internet connection.")
+                self.failed.emit(NO_CONNECTION)
         except requests.exceptions.Timeout:
             if not self.cancelled:
                 self.failed.emit("Xiaomi did not answer. Try again.")
@@ -322,7 +330,8 @@ class FanCard(QFrame):
         QGuiApplication.clipboard().setText(self.fan.token)
         self.copy_btn.setText("\u2002Copied")
         self.copy_btn.setIcon(icon(_ICON_CHECK, "#FFFFFF"))
-        QTimer.singleShot(1500, self._reset_copy)
+        # The card as context: the timer is dropped if Sign out or a reload deletes the card first.
+        QTimer.singleShot(1500, self, self._reset_copy)
 
     def _reset_copy(self) -> None:
         self.copy_btn.setText(COPY_LABEL)
@@ -555,6 +564,7 @@ class MainWindow(QMainWindow):
         self.password = QLineEdit()
         self.password.setPlaceholderText("Password")
         self.password.setEchoMode(QLineEdit.Password)
+        self.email.returnPressed.connect(self.password.setFocus)
         self.password.returnPressed.connect(self._sign_in_password)
         self.sign_in_btn = QPushButton("Sign in")
         self.sign_in_btn.setObjectName("cta")
@@ -705,9 +715,7 @@ class MainWindow(QMainWindow):
         return page
 
     def show_fans(self, fans: List[Fan]) -> None:
-        for card in self._cards:
-            card.setParent(None)
-        self._cards = []
+        self._drop_cards()
         for fan in fans:
             card = FanCard(fan)
             card.add_btn.clicked.connect(lambda _checked=False, c=card: self._add_fan(c))
@@ -726,6 +734,14 @@ class MainWindow(QMainWindow):
         self.fans_error.hide()
         self.reload_btn.setEnabled(self._add_card is None)
         self.stack.setCurrentWidget(self.fans_page)
+
+    def _drop_cards(self) -> None:
+        for card in self._cards:
+            card.setParent(None)
+            card.deleteLater()
+        self._cards = []
+        # New cards can reuse the ids of freed ones, so the old signature must not match them.
+        self._layout_sig = None
 
     def _column_count(self) -> int:
         available = self.scroll.viewport().width()
@@ -764,8 +780,11 @@ class MainWindow(QMainWindow):
             boxes.addStretch(1)
             for card in self._cards[start:start + cols]:
                 boxes.addWidget(card, 0, Qt.AlignTop)
+                # Reparenting hides a card; hidden cards count as 0 px in the height below.
+                card.show()
             boxes.addStretch(1)
             self.rows.addWidget(row)
+            row.show()
         self.rows.addStretch(1)
         self.rows.activate()
         self._layout_sig = signature
@@ -917,12 +936,21 @@ class MainWindow(QMainWindow):
         self._worker = worker
         worker.start()
 
+    def _current(self) -> bool:
+        """True when the signal comes from the sign-in or reload that the window still waits for."""
+        sender = self.sender()
+        return sender is not None and sender in (self._worker, self._reload)
+
     def _on_status(self, text: str) -> None:
+        if not self._current():
+            return
         self.qr_image.hide()
         self.busy_label.setText(text)
         self.busy_hint.setText("")
 
     def _on_qr(self, image: bytes) -> None:
+        if not self._current():
+            return
         pix = QPixmap()
         pix.loadFromData(image)
         self.qr_image.setPixmap(pix.scaled(QSize(260, 260), Qt.KeepAspectRatio, Qt.SmoothTransformation))
@@ -931,16 +959,24 @@ class MainWindow(QMainWindow):
         self.busy_hint.setText("Then confirm the sign-in on your phone.")
 
     def _on_captcha(self, image: bytes, future: _Future) -> None:
+        if not self._current():
+            future.set(None)
+            return
         dlg = CodeDialog("Security check", "Enter the characters shown (case-sensitive).", "Characters", image, self)
         future.set(dlg.input.text().strip() if dlg.exec() == QDialog.Accepted else None)
 
     def _on_twofactor(self, _prompt: str, future: _Future) -> None:
+        if not self._current():
+            future.set(None)
+            return
         dlg = CodeDialog("Check your email", "Xiaomi sent a code to your email address.", "Code", None, self)
         future.set(dlg.input.text().strip() if dlg.exec() == QDialog.Accepted else None)
 
     def _on_fans_ready(self, fans: list) -> None:
         worker = self.sender()
-        if isinstance(worker, Worker) and worker.connector is not None:
+        if worker is None or worker is not self._worker:
+            return
+        if worker.connector is not None:
             self._connector = worker.connector
         self.show_fans(fans)
 
@@ -971,12 +1007,18 @@ class MainWindow(QMainWindow):
         if self.sender() is not self._reload:
             return
         self._reload = None
+        if message == SESSION_ENDED:
+            self._sign_out()
+            self._set_error(message)
+            return
         self.reload_btn.setEnabled(self._add_card is None)
         self.fans_error.setText(message)
         self.fans_error.show()
         self.stack.setCurrentWidget(self.fans_page)
 
     def _on_failed(self, message: str) -> None:
+        if self.sender() is not self._worker:
+            return
         self._set_error(message)
         self.stack.setCurrentWidget(self.login_page)
 
@@ -1004,9 +1046,8 @@ class MainWindow(QMainWindow):
         self._connector = None
         self._add_card = None
         self.password.clear()
-        for card in self._cards:
-            card.setParent(None)
-        self._cards = []
+        self._drop_cards()
+        self._layout_cards()
         self.stack.setCurrentWidget(self.login_page)
 
 

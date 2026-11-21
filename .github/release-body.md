@@ -1,4 +1,9 @@
-The app icon is now the Homewind wind mark.
+Fixes from the release check:
+
+- After **Reload fans**, a long fan list scrolls again.
+- When Xiaomi ends the sign-in, Reload fans asks you to sign in again instead of showing no fans.
+- A cancelled sign-in no longer shows its messages or security check later.
+- Enter in the email field moves to the password field.
 
 ## Platform-specific notes
 

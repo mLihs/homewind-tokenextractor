@@ -1,4 +1,4 @@
-from homewind_tokenextractor.fans import PLACEHOLDER_IMAGE, collect_fans, filter_fans, load_catalog
+from homewind_tokenextractor.fans import PLACEHOLDER_IMAGE, SESSION_ENDED, collect_fans, filter_fans, load_catalog
 
 TOKEN = "0123456789abcdef0123456789ABCDEF"
 
@@ -93,3 +93,17 @@ def test_collect_reports_when_every_region_is_unreachable():
     except ConnectionError:
         return
     raise AssertionError("expected ConnectionError")
+
+
+class ExpiredConnector(DownConnector):
+    def get_homes(self, server):
+        return None  # Xiaomi answered, but not with HTTP 200
+
+
+def test_collect_reports_an_ended_sign_in_instead_of_no_fans():
+    try:
+        collect_fans(ExpiredConnector(), load_catalog(), servers=["de", "cn"])
+    except PermissionError as exc:
+        assert str(exc) == SESSION_ENDED
+        return
+    raise AssertionError("expected PermissionError")

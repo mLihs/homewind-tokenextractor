@@ -29,7 +29,9 @@ The list contains only fans Homewind can control. Each tile shows the name from 
 - **Copy token** puts the 32-character token on the clipboard. The button shows **Copied** for a moment.
 - **Add to Homewind** sends that token to a Homewind on the network.
 
-**Reload fans** asks Xiaomi for the list again with the same sign-in. It does not ask for the password again. **Cancel** on that waiting screen returns to the list you already had. The button is disabled while a fan is being added.
+The two icons at the top right are **Reload fans** (circular arrows) and **Sign out** (arrow out of a door). Point at an icon to see its name.
+
+**Reload fans** asks Xiaomi for the list again with the same sign-in. It does not ask for the password again. **Cancel** on that waiting screen returns to the list you already had. The button is disabled while a fan is being added. If Xiaomi has ended the sign-in in the meantime, the app goes back to the sign-in page and shows **Xiaomi ended the sign-in. Sign in again.**
 
 **Sign out** drops the Xiaomi session and clears the password field. It does not forget the last Homewind (see below).
 
