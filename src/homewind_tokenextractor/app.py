@@ -526,7 +526,8 @@ class MainWindow(QMainWindow):
         outer = QVBoxLayout(page)
         outer.setAlignment(Qt.AlignCenter)
         box = QWidget()
-        box.setFixedWidth(380)
+        # Room for "Homewind Token Extractor" in Outfit Black 28 px (about 361 px) plus the layout margins.
+        box.setFixedWidth(400)
         layout = QVBoxLayout(box)
         layout.setSpacing(12)
 

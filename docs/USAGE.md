@@ -16,6 +16,11 @@ The first time you click **Add to Homewind**, macOS asks for permission to find 
 
 Choose **Email** or **QR code**.
 
+<p>
+  <img src="screenshots/sign-in-email.png" alt="Sign in with email and password" width="49%">
+  <img src="screenshots/sign-in-qr.png" alt="Sign in with a QR code" width="49%">
+</p>
+
 Email takes the Xiaomi Home account (email, phone, or Xiaomi ID) and the password. Xiaomi sometimes asks for the characters in a picture, or for a code sent to your email. The password is not saved. **Cancel** on the waiting screen returns to the sign-in form.
 
 QR code shows a code after **Show QR code**. In the Xiaomi Home app, open the scan icon and confirm the sign-in on the phone. An unused code expires; start it again.
@@ -23,6 +28,8 @@ QR code shows a code after **Show QR code**. In the Xiaomi Home app, open the sc
 After a successful sign-in the app looks through Xiaomi's regions and shows **Looking for your fans … n/8**. If Xiaomi accepts the connection and then stays silent, the request stops after 20 seconds and the app shows **Xiaomi did not answer. Try again.**
 
 ## Your fans
+
+![Your fans: Copy token and Add to Homewind on each fan, Reload fans and Sign out at the top right](screenshots/your-fans.png)
 
 The list contains only fans Homewind can control. Each tile shows the name from Xiaomi Home, the product name when the model is known, and two actions:
 

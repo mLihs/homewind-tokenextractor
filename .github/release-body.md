@@ -1,5 +1,12 @@
 Headlines now use Outfit Black.
 
+![Your fans](https://raw.githubusercontent.com/mLihs/homewind-tokenextractor/v0.1.3/docs/screenshots/your-fans.png)
+
+<p>
+  <img src="https://raw.githubusercontent.com/mLihs/homewind-tokenextractor/v0.1.3/docs/screenshots/sign-in-email.png" alt="Sign in with email" width="49%">
+  <img src="https://raw.githubusercontent.com/mLihs/homewind-tokenextractor/v0.1.3/docs/screenshots/sign-in-qr.png" alt="Sign in with a QR code" width="49%">
+</p>
+
 Fixes from the release check:
 
 - After **Reload fans**, a long fan list scrolls again.

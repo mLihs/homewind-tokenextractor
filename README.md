@@ -2,6 +2,13 @@
 
 This app is a helper app for [Homewind](https://homewind.io). It adds Xiaomi fans to Homewind with one click, or it gets the fan token so you can add a fan to Homewind manually.
 
+![Your fans: each fan has Copy token and Add to Homewind](docs/screenshots/your-fans.png)
+
+<p>
+  <img src="docs/screenshots/sign-in-email.png" alt="Sign in with email and password" width="49%">
+  <img src="docs/screenshots/sign-in-qr.png" alt="Sign in with a QR code from the Xiaomi Home app" width="49%">
+</p>
+
 ## What you do
 
 1. Open the app and sign in to Xiaomi Home with your email and password, or with a QR code from the Xiaomi Home app on your phone. The password is not saved.
