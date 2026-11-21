@@ -1,4 +1,4 @@
-The Mac download is now a disk image. On the fan page, the title is centered, reload and sign out are icons, and Add to Homewind is the pink button.
+The app icon is now the Homewind wind mark.
 
 ## Platform-specific notes
 
