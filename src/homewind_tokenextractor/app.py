@@ -21,7 +21,6 @@ from PySide6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
     QFrame,
-    QGridLayout,
     QHBoxLayout,
     QLabel,
     QLineEdit,
@@ -58,7 +57,7 @@ INK = "#132237"        # primary text, primary button
 INK_HOVER = "#22344D"
 SECONDARY = "#516682"  # secondary text
 MUTED = "#66768D"      # meta text, about 4.6:1 on the card
-PINK = "#F00F66"       # brand accent: sign-in only
+PINK = "#F00F66"       # brand accent: sign-in and add to Homewind
 OFFLINE = "#8D9EB9"
 
 STYLE = f"""
@@ -85,8 +84,11 @@ QPushButton#primary:focus {{ border-color: #8D9EB9; }}
 QPushButton#cta {{ background: {PINK}; border-color: {PINK}; color: #FFFFFF; }}
 QPushButton#cta:hover {{ background: #D70054; border-color: #D70054; }}
 QPushButton#cta:focus {{ border-color: {INK}; }}
+QPushButton#cta:disabled {{ background: #F7A3C2; border-color: #F7A3C2; color: #FFFFFF; }}
 QPushButton#link {{ border: none; background: transparent; color: {SECONDARY}; padding: 0 8px; min-height: 32px; }}
 QPushButton#link:hover {{ color: {INK}; }}
+QPushButton#iconBtn {{ padding: 0; min-width: 38px; max-width: 38px; min-height: 38px; max-height: 38px; }}
+QPushButton#iconBtn:hover {{ background: #F3F6FB; }}
 QFrame#segmentBar {{ background: #DDE4F0; border-radius: 10px; }}
 QPushButton#segment {{ border: none; background: transparent; color: {SECONDARY}; border-radius: 6px; min-height: 32px; }}
 QPushButton#segment:checked {{ background: #FCFCFE; color: {INK}; }}
@@ -101,6 +103,17 @@ _ICON_COPY = (
 )
 COPY_LABEL = "\u2002Copy token"  # en space = 8 px gap after the icon
 _ICON_CHECK = '<path d="M20 6 9 17l-5-5"/>'
+_ICON_RELOAD = (
+    '<path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>'
+    '<path d="M3 3v5h5"/>'
+    '<path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>'
+    '<path d="M16 16h5v5"/>'
+)
+_ICON_SIGN_OUT = (
+    '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>'
+    '<path d="m16 17 5-5-5-5"/>'
+    '<path d="M21 12H9"/>'
+)
 
 
 def icon(paths: str, color: str, size: int = 16) -> QIcon:
@@ -238,6 +251,8 @@ class CodeDialog(QDialog):
 # ----------------------------------------------------------------------------
 class FanCard(QFrame):
     WIDTH = 240
+    COLUMNS = 3
+    GAP = 16
 
     def __init__(self, fan: Fan, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
@@ -293,6 +308,7 @@ class FanCard(QFrame):
         buttons.addWidget(self.copy_btn)
 
         self.add_btn = QPushButton("Add to Homewind")
+        self.add_btn.setObjectName("cta")
         self.add_btn.setCursor(Qt.PointingHandCursor)
         buttons.addWidget(self.add_btn)
         self.add_error = QLabel("")
@@ -617,38 +633,64 @@ class MainWindow(QMainWindow):
         layout.setSpacing(16)
         head = QHBoxLayout()
         titles = QVBoxLayout()
+        titles.setSpacing(4)
         title = QLabel("Your fans")
         title.setObjectName("title")
+        title.setAlignment(Qt.AlignHCenter)
         self.fans_sub = QLabel("")
         self.fans_sub.setObjectName("subtitle")
+        self.fans_sub.setAlignment(Qt.AlignHCenter)
         self.fans_sub.setWordWrap(True)
         titles.addWidget(title)
         titles.addWidget(self.fans_sub)
         self.fans_error = QLabel("")
         self.fans_error.setObjectName("error")
+        self.fans_error.setAlignment(Qt.AlignHCenter)
         self.fans_error.setWordWrap(True)
         self.fans_error.hide()
         titles.addWidget(self.fans_error)
-        head.addLayout(titles, 1)
-        self.reload_btn = QPushButton("Reload fans")
-        self.reload_btn.setObjectName("link")
+        self.reload_btn = QPushButton()
+        self.reload_btn.setObjectName("iconBtn")
+        self.reload_btn.setIcon(icon(_ICON_RELOAD, SECONDARY))
+        self.reload_btn.setIconSize(QSize(18, 18))
+        self.reload_btn.setCursor(Qt.PointingHandCursor)
+        self.reload_btn.setToolTip("Reload fans")
+        self.reload_btn.setAccessibleName("Reload fans")
         self.reload_btn.clicked.connect(self._reload_fans)
-        head.addWidget(self.reload_btn, alignment=Qt.AlignTop)
-        sign_out = QPushButton("Sign out")
-        sign_out.setObjectName("link")
+        sign_out = QPushButton()
+        sign_out.setObjectName("iconBtn")
+        sign_out.setIcon(icon(_ICON_SIGN_OUT, SECONDARY))
+        sign_out.setIconSize(QSize(18, 18))
+        sign_out.setCursor(Qt.PointingHandCursor)
+        sign_out.setToolTip("Sign out")
+        sign_out.setAccessibleName("Sign out")
         sign_out.clicked.connect(self._sign_out)
-        head.addWidget(sign_out, alignment=Qt.AlignTop)
+        actions = QHBoxLayout()
+        actions.setSpacing(8)
+        actions.addWidget(self.reload_btn)
+        actions.addWidget(sign_out)
+        # Same width on the left keeps the headline centered in the window, not beside the buttons.
+        balance = QWidget()
+        balance.setFixedWidth(38 + 8 + 38)
+        head.addWidget(balance)
+        head.addLayout(titles, 1)
+        head.addLayout(actions)
         layout.addLayout(head)
         layout.addSpacing(8)
 
         self.scroll = QScrollArea()
         self.scroll.setWidgetResizable(True)
+        self.scroll.setFrameShape(QFrame.NoFrame)
+        self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.grid_host = QWidget()
-        self.grid = QGridLayout(self.grid_host)
-        self.grid.setContentsMargins(0, 0, 0, 0)
-        self.grid.setSpacing(16)
-        self.grid.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+        self.grid_host.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
+        self.rows = QVBoxLayout(self.grid_host)
+        self.rows.setContentsMargins(0, 0, 0, 0)
+        self.rows.setSpacing(FanCard.GAP)
+        self.rows.setAlignment(Qt.AlignTop | Qt.AlignHCenter)
         self.scroll.setWidget(self.grid_host)
+        self._layout_sig: Optional[tuple] = None
         layout.addWidget(self.scroll, 1)
 
         self.empty = QLabel(
@@ -685,18 +727,50 @@ class MainWindow(QMainWindow):
         self.reload_btn.setEnabled(self._add_card is None)
         self.stack.setCurrentWidget(self.fans_page)
 
+    def _column_count(self) -> int:
+        available = self.scroll.viewport().width()
+        if available <= 0:
+            available = max(self.width() - 64, FanCard.WIDTH)
+        cols = min(FanCard.COLUMNS, len(self._cards))
+        while cols > 1 and cols * FanCard.WIDTH + (cols - 1) * FanCard.GAP > available:
+            cols -= 1
+        return max(1, cols)
+
+    def _clear_fan_rows(self) -> None:
+        for card in self._cards:
+            card.setParent(self.grid_host)
+        while self.rows.count():
+            item = self.rows.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
+
     def _layout_cards(self) -> None:
         if not self._cards:
+            self._clear_fan_rows()
+            self._layout_sig = None
+            self.grid_host.setMinimumHeight(0)
             return
-        spacing = self.grid.spacing()
-        available = max(self.scroll.viewport().width(), FanCard.WIDTH)
-        cols = max(1, (available + spacing) // (FanCard.WIDTH + spacing))
-        for row in range(self.grid.rowCount()):
-            self.grid.setRowStretch(row, 0)
-        for i, card in enumerate(self._cards):
-            self.grid.addWidget(card, i // cols, i % cols)
-        # Rows take the height of their tallest card; the spare height goes to an empty last row.
-        self.grid.setRowStretch((len(self._cards) - 1) // cols + 1, 1)
+        cols = self._column_count()
+        signature = (cols, tuple(id(card) for card in self._cards))
+        if signature == self._layout_sig:
+            return
+        self._clear_fan_rows()
+        for start in range(0, len(self._cards), cols):
+            row = QWidget()
+            boxes = QHBoxLayout(row)
+            boxes.setContentsMargins(0, 0, 0, 0)
+            boxes.setSpacing(FanCard.GAP)
+            boxes.addStretch(1)
+            for card in self._cards[start:start + cols]:
+                boxes.addWidget(card, 0, Qt.AlignTop)
+            boxes.addStretch(1)
+            self.rows.addWidget(row)
+        self.rows.addStretch(1)
+        self.rows.activate()
+        self._layout_sig = signature
+        self.grid_host.setMinimumHeight(self.rows.totalSizeHint().height())
+        self.grid_host.updateGeometry()
 
     def resizeEvent(self, event) -> None:  # noqa: N802
         super().resizeEvent(event)

@@ -15,11 +15,15 @@ A step-by-step guide, including several Homewinds and the messages on a fan, is 
 
 ## Get the app
 
-When a version is published, open the Releases page of this repository and download the file for your computer: Mac, Windows, or Linux. Unzip it and open **Homewind Token Extractor**. You do not need to install Python.
+When a version is published, open the Releases page of this repository and download the file for your computer. You do not need to install Python.
+
+- Mac: `HomewindTokenExtractor-macOS.dmg`. Open the disk image, then open **HomewindTokenExtractor**.
+- Windows: `HomewindTokenExtractor-Windows.zip`. Unzip it and run **HomewindTokenExtractor.exe** inside the folder.
+- Linux: `HomewindTokenExtractor-Linux.tar.gz`. Unpack it and run the program inside.
 
 ## For developers
 
-Pushes to `main` and pull requests run [GitHub Actions](.github/workflows/build.yml), which uploads a Mac, Windows, and Linux build. A version tag such as `v0.1.0` also publishes those files as a GitHub Release.
+Pushes to `main` and pull requests run [GitHub Actions](.github/workflows/build.yml), which uploads a Mac, Windows, and Linux build. A version tag such as `v0.1.1` also publishes those files as a GitHub Release: a Mac disk image, a Windows zip, and a Linux archive.
 
 ### Run from source
 

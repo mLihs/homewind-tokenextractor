@@ -1,4 +1,4 @@
-This release has a new UI.
+The Mac download is now a disk image. On the fan page, the title is centered, reload and sign out are icons, and Add to Homewind is the pink button.
 
 ## Platform-specific notes
 
@@ -6,8 +6,9 @@ This release has a new UI.
 
 The Mac build runs on Apple Silicon (M1 or newer), not on Intel Macs.
 
-- Download `HomewindTokenExtractor-macOS.zip` from Releases
-- Extract it. The app inside is `HomewindTokenExtractor.app`
+- Download `HomewindTokenExtractor-macOS.dmg` from Releases
+- Open the disk image. The app inside is `HomewindTokenExtractor.app`
+- Drag it to your Applications folder, or open it from the disk image
 - First launch: right-click the app and choose **Open**, then **Open** again. A normal double-click is blocked because the app is not signed with an Apple developer certificate
 - If macOS still blocks it, open System Settings > Privacy & Security, scroll to Security, and click **Open Anyway**
 - Optional, in Terminal: `xattr -cr /path/to/HomewindTokenExtractor.app`
