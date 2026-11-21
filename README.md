@@ -1,21 +1,27 @@
 # Homewind Token Extractor
 
-Reads the tokens of your Xiaomi fans so you can add them to [Homewind](https://github.com/mLihs/Homewind).
+This app is a helper app for [Homewind](https://homewind.io). It adds Xiaomi fans to Homewind with one click, or it gets the fan token so you can add a fan to Homewind manually.
 
-1. Sign in with your Xiaomi Home account (email and password, or QR code from the Xiaomi Home app).
-2. You see only fans Homewind can control.
-3. Click **Add to Homewind** to send the fan to a Homewind on your home network, or **Copy token** and paste it in the web UI.
-4. **Reload fans** loads the list again with the same sign-in.
+## What you do
 
-Your sign-in goes straight to Xiaomi. The password is not stored. The app remembers the last Homewind you added a fan to.
+1. Open the app and sign in to Xiaomi Home with your email and password, or with a QR code from the Xiaomi Home app on your phone. The password is not saved.
+2. You see your fans. Only fans that Homewind can control are listed.
+3. Click **Add to Homewind** on a fan. The app looks for your Homewind and sends the token. The next time, it tries that same Homewind first.
+4. **Reload fans** loads the list again without asking for the password again.
 
-## Download a build
+The first time you open the app on a Mac, a normal double-click may be blocked. Right-click the app, choose **Open**, then choose **Open** again. The first time you add a fan, macOS or Windows may ask if the app may look for devices on your local network. Allow that.
 
-Pushes to `main` and pull requests run [GitHub Actions](.github/workflows/build.yml). Open the workflow run and download the macOS, Windows, or Linux artifact. A tag `v*` (for example `v0.1.0`) also publishes those files as a GitHub Release.
+A step-by-step guide, including several Homewinds and the messages on a fan, is in [Using the app](docs/USAGE.md).
 
-On macOS, the first launch of a new build is blocked because the app is not signed with an Apple developer certificate. Right-click the app, choose **Open**, then **Open** again.
+## Get the app
 
-## Run from source
+When a version is published, open the Releases page of this repository and download the file for your computer: Mac, Windows, or Linux. Unzip it and open **Homewind Token Extractor**. You do not need to install Python.
+
+## For developers
+
+Pushes to `main` and pull requests run [GitHub Actions](.github/workflows/build.yml), which uploads a Mac, Windows, and Linux build. A version tag such as `v0.1.0` also publishes those files as a GitHub Release.
+
+### Run from source
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
@@ -23,24 +29,29 @@ pip install .
 homewind-tokenextractor        # or: python -m homewind_tokenextractor
 ```
 
-## Build
+### Build
 
 ```bash
 pip install pyinstaller pillow
 pyinstaller HomewindTokenExtractor.spec --clean -y
 ```
 
-Pillow is required on macOS: PyInstaller converts `icon.ico` to an `.icns`. The same install is used by the GitHub Actions build.
+On macOS, Pillow is required because PyInstaller converts `icon.ico` into an `.icns` file. The GitHub Actions build installs it the same way.
 
-## Fans shown
+### Fans shown
 
-`src/homewind_tokenextractor/assets/fans/catalog.json` lists known models with product name and image. Fans whose model starts with `dmaker.fan.`, `zhimi.fan.` or `xiaomi.fan.` also appear, because SmartMiFanAsync accepts them; without a catalog entry they show a placeholder and the model ID. `enabled: false` hides a model (e.g. `dmaker.fan.1c`, 3 speeds only). Images are square PNGs on white, 352 px.
+`src/homewind_tokenextractor/assets/fans/catalog.json` lists known models with a product name and an image. Fans whose model starts with `dmaker.fan.`, `zhimi.fan.`, or `xiaomi.fan.` also appear, because SmartMiFanAsync accepts them. Without a catalog entry they show a placeholder and the model ID. `enabled: false` hides a model (for example `dmaker.fan.1c`, which has only 3 speeds). Images are square PNGs on white, 352 px.
 
-## Tests
+### Tests
 
 ```bash
 pip install pytest && PYTHONPATH=src pytest -q
 ```
+
+## Docs
+
+- [Using the app](docs/USAGE.md) — sign-in, fan list, adding a fan, what is stored, and what the error texts mean.
+- [Add to Homewind concept](docs/ADD_TO_HOMEWIND_CONCEPT.md) — design notes for the LAN API (German). Stage A is what the app does today. Stage B (showing that a fan is already in Homewind, and updating its token) is not built yet.
 
 ## Credits
 

@@ -1,5 +1,7 @@
 # Add to Homewind – Konzept
 
+Entwurf für die Entwicklung. Bedienung der App: [USAGE.md](USAGE.md).
+
 Stand: Entwurf rev 2, 2026-11-20, nicht freigegeben. Grundlage: `docs/05_APIS.md` (Stand mit Trainer-Firmware 2.0, CSRF-Header, Abschnitt „Adding a fan from the Token Extractor“), Code Homewind 1.8.2, SmartMiFanAsync 2.0.1, Homewind Token Extractor 0.1.0.
 
 ## Ziel
