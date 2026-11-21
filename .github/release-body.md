@@ -1,3 +1,5 @@
+Headlines now use Outfit Black.
+
 Fixes from the release check:
 
 - After **Reload fans**, a long fan list scrolls again.

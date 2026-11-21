@@ -71,8 +71,8 @@ OFFLINE = "#8D9EB9"
 STYLE = f"""
 QWidget {{ font-family: Inter; font-size: 14px; color: {INK}; }}
 QMainWindow, QWidget#page {{ background: #EEF2FA; }}
-QLabel#title {{ font-family: Outfit; font-size: 28px; font-weight: 500; }}
-QLabel#busyTitle {{ font-family: Outfit; font-size: 22px; font-weight: 500; }}
+QLabel#title {{ font-family: Outfit; font-size: 28px; font-weight: 900; }}
+QLabel#busyTitle {{ font-family: Outfit; font-size: 22px; font-weight: 900; }}
 QLabel#subtitle {{ color: {SECONDARY}; font-size: 14px; }}
 QLabel#muted {{ color: {MUTED}; font-size: 13px; }}
 QLabel#error {{ color: #D70054; font-size: 13px; }}
