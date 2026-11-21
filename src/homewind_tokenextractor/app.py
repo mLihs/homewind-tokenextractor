@@ -1019,7 +1019,8 @@ def run() -> None:
     app = QApplication(sys.argv)
     app.setApplicationName("Homewind Token Extractor")
     app.setApplicationVersion(__version__)
-    icon = ASSETS_DIR / "icon.ico"
+    # The window icon is also the Dock icon on macOS, so it needs the padded, rounded Mac shape.
+    icon = ASSETS_DIR / ("icon.png" if sys.platform == "darwin" else "icon.ico")
     if icon.is_file():
         app.setWindowIcon(QIcon(str(icon)))
     load_fonts()

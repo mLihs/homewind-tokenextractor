@@ -40,7 +40,7 @@ pip install pyinstaller pillow
 pyinstaller HomewindTokenExtractor.spec --clean -y
 ```
 
-On macOS, Pillow is required because PyInstaller converts `icon.ico` into an `.icns` file. The GitHub Actions build installs it the same way.
+The Mac app uses `icon.icns`, and Windows and Linux use `icon.ico`. Both are made by `tools/make_icons.py` from the Homewind wind mark. Run it on a Mac with `.venv/bin/python tools/make_icons.py` after the logo changes.
 
 ### Fans shown
 

@@ -22,7 +22,7 @@ coll = COLLECT(exe, a.binaries, a.datas, upx=True, name='HomewindTokenExtractor'
 app = BUNDLE(
     coll,
     name='HomewindTokenExtractor.app',
-    icon='src/homewind_tokenextractor/assets/icon.ico',
+    icon='src/homewind_tokenextractor/assets/icon.icns',
     bundle_identifier='io.homewind.tokenextractor',
     # Needed once "Add to Homewind" browses the local network (macOS 15+ asks for permission).
     info_plist={
